@@ -7,18 +7,18 @@ pipeline {
                 echo 'Pulling the latest code from GitHub...'
             }
         }
-        stage('Run Tests') {
-            agent {
-                docker { image 'python:3.9-slim' }
-            }
-            steps {
-                echo 'Running python tests inside a python container...'
-                sh 'pip install pytest && pytest'
-            }
+    stage('Run Tests') {
+        agent {
+            docker { image 'my-app-tester:latest' }
         }
+        steps {
+            echo 'Running tests instantly using our pre-built tester image...'
+            sh 'pytest' // No pip install needed! It runs instantly.
+        }
+    }
         stage('Build Package') {
             steps {
-                echo 'Building the final Docker image...'
+                echo 'Tests passed! Building the final production image...'
                 sh 'docker build -t simple-app .'
             }
         }
