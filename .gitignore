@@ -1,0 +1,68 @@
+# ====================================================================
+# OS & System Junk
+# ====================================================================
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+
+# ====================================================================
+# Environments, Credentials, & Secrets (CRITICAL)
+# ====================================================================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+config.json
+secrets.py
+credentials/
+
+# ====================================================================
+# Python (Virtual Environments & Cache)
+# ====================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# ====================================================================
+# Node.js / JavaScript
+# ====================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.next/
+dist/
+build/
+
+# ====================================================================
+# IDEs and Editors
+# ====================================================================
+.vscode/
+# Optional: If you want to share VS Code team settings, uncomment the next 2 lines
+# !.vscode/settings.json
+# !.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ====================================================================
+# Data, Financial Analysis, & Large Datasets
+# ====================================================================
+*.csv
+*.xlsx
+*.jsonl
+*.parquet
+*.sqlite3
+*.db
+data/
+downloads/
