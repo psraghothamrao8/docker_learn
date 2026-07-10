@@ -8,15 +8,17 @@ pipeline {
             }
         }
         stage('Run Tests') {
+            agent {
+                docker { image 'python:3.9-slim' }
+            }
             steps {
-                echo 'Running python tests...'
-                // Inside Jenkins, we use 'sh' or 'bat' to run commands
+                echo 'Running python tests inside a python container...'
                 sh 'pip install pytest && pytest'
             }
         }
         stage('Build Package') {
             steps {
-                echo 'Building Docker Image...'
+                echo 'Building the final Docker image...'
                 sh 'docker build -t simple-app .'
             }
         }
