@@ -50,15 +50,14 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 echo 'Shipping image to Minikube container...'
-                // 1. Save the image from Ubuntu and load it directly into Minikube's Docker engine
                 sh 'docker save simple-app:latest | docker exec -i minikube docker load'
 
                 echo 'Applying Kubernetes manifests...'
-                // 2. Tell Minikube's internal kubectl engine to apply our deployment file
-                sh 'docker exec -i minikube kubectl apply -f - < deployment.yaml'
+                // We use 'minikube kubectl --' to trigger the cluster's internal tool safely
+                sh 'cat deployment.yaml | docker exec -i minikube minikube kubectl -- apply -f -'
                 
                 echo 'Checking deployment status...'
-                sh 'docker exec -i minikube kubectl rollout status deployment/simple-app-deployment'
+                sh 'docker exec -i minikube minikube kubectl -- rollout status deployment/simple-app-deployment'
             }
         }
     }
