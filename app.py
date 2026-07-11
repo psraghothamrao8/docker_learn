@@ -25,7 +25,7 @@ def home():
     <!-- Viewport configuration makes our page mobile-responsive (scales nicely on phones, tablets, etc.) -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>The Mathematics of Us</title>
+    <title>The Mathematics of Love</title>
     
     <!-- Preconnecting to Google Fonts servers improves loading speed for web typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -398,8 +398,8 @@ def home():
 
     <div class="app-layout">
         <header class="app-header">
-            <h1 class="title">The Mathematics of Us</h1>
-            <p class="subtitle">Proof: We are the perfect equation</p>
+            <h1 class="title">The Mathematics of Love</h1>
+            <p class="subtitle">The perfect equation</p>
         </header>
 
         <div class="main-content">
