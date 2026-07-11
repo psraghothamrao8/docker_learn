@@ -1,6 +1,6 @@
 import os
 # Mock a fake secret just for the test environment before loading the app
-os.environ['SECRET_KEY'] = 'pavvi'
+# os.environ['SECRET_KEY'] = 'pavvi'
 
 from app import app
 

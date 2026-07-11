@@ -14,11 +14,17 @@ pipeline {
         }
         stage('Run Tests') {
             agent {
-                dockerfile { filename 'Dockerfile.test' }
+                dockerfile {
+                    filename 'Dockerfile.test'
+                }
+            }
+            environment {
+                // We securely pull the secret from Jenkins and give it to the test container
+                SECRET_KEY = credentials('app-secret-key')
             }
             steps {
-                echo 'Running tests instantly using our pre-built tester image...'
-                sh 'pytest' // No pip install needed! It runs instantly.
+                echo 'Running tests against the active Jenkins secret key...'
+                sh 'pytest'
             }
         }
         stage('Build Package') {
