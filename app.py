@@ -1,9 +1,12 @@
 import os
+from flask import Flask
+app = Flask(__name__)
 
-def get_message():
-    # Looks for a secret key, defaults to "no-key" if missing
-    secret = os.getenv("MY_SECRET", "no-key")
+@app.route('/')
+def home():
+    # os.environ.get reads the secret injected by Docker
+    secret = os.environ.get('SECRET_KEY', 'no-key-found')
     return f"Hello! Secret is: {secret}"
 
-if __name__ == "__main__":
-    print(get_message())
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)

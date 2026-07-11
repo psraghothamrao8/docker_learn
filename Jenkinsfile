@@ -22,15 +22,18 @@ pipeline {
                 }
             }
     stage('Deploy Locally') {
-        steps {
-            echo 'Deploying app to Ubuntu...'
-            // 1. Stop and remove the old version if it's already running
-            sh 'docker stop my-running-app || true'
-            sh 'docker rm my-running-app || true'
-            
-            // 2. Start the fresh image we just built
-            sh 'docker run -d --name my-running-app -p 8081:5000 simple-app:latest'
+            environment {
+                // This securely extracts your secret from Jenkins credentials
+                REAL_SECRET = credentials('app-secret-key')
+            }
+            steps {
+                echo 'Deploying app to Ubuntu with injected secrets...'
+                sh 'docker stop my-running-app || true'
+                sh 'docker rm my-running-app || true'
+                
+                // Note the double quotes "" instead of single quotes so Jenkins can swap the variable
+                sh "docker run -d --name my-running-app -p 8081:5000 -e SECRET_KEY='${REAL_SECRET}' simple-app:latest"
+            }
         }
-    }
     }
 }

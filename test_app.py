@@ -1,7 +1,11 @@
 import os
-from app import get_message
+# Mock a fake secret just for the test environment before loading the app
+os.environ['SECRET_KEY'] = 'pavvi'
 
-def test_get_message():
-    # We temporarily set a secret to test if the code reads it
-    os.environ["MY_SECRET"] = "password123"
-    assert "password123" in get_message()
+from app import app
+
+def test_home_route():
+    client = app.test_client()
+    response = client.get('/')
+    assert response.status_code == 200
+    assert b"Hello! Secret is: pavvi" in response.data

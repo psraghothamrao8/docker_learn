@@ -1,3 +1,5 @@
 FROM python:3.9-slim
-RUN pip install pytest requests flake8  # Pre-install all your testing tools
 WORKDIR /app
+# Install both testing and web dependencies
+RUN pip install pytest flask
+COPY . .
