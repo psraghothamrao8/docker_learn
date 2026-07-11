@@ -9,7 +9,7 @@ pipeline {
         }
     stage('Run Tests') {
         agent {
-            docker { image 'my-app-tester:latest' }
+            dockerfile { filename 'Dockerfile.test' }
         }
         steps {
             echo 'Running tests instantly using our pre-built tester image...'
