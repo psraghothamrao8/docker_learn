@@ -52,12 +52,12 @@ pipeline {
                 echo 'Shipping image to Minikube container...'
                 sh 'docker save simple-app:latest | docker exec -i minikube docker load'
 
-                echo 'Applying Kubernetes manifests...'
-                // We use 'minikube kubectl --' to trigger the cluster's internal tool safely
-                sh 'cat deployment.yaml | docker exec -i minikube minikube kubectl -- apply -f -'
+                echo 'Applying Kubernetes manifests using cluster binaries...'
+                // This dynamically finds the hidden version folder inside the container and runs kubectl
+                sh 'cat deployment.yaml | docker exec -i minikube /bin/bash -c "PATH=\$(ls -d /var/lib/minikube/binaries/*/ | head -n 1):\$PATH kubectl apply -f -"'
                 
                 echo 'Checking deployment status...'
-                sh 'docker exec -i minikube minikube kubectl -- rollout status deployment/simple-app-deployment'
+                sh 'docker exec -i minikube /bin/bash -c "PATH=\$(ls -d /var/lib/minikube/binaries/*/ | head -n 1):\$PATH kubectl rollout status deployment/simple-app-deployment"'
             }
         }
     }
