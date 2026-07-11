@@ -1,39 +1,38 @@
 apiVersion: apps/v1
-kind: Deployment        # 1. Tells K8s: "Create a Deployment manager"
+kind: Deployment
 metadata:
   name: simple-app-deployment
   labels:
     app: simple-app
 spec:
-  replicas: 2           # 2. RUN EXACTLY 2 COPIES OF THE APP AT ALL TIMES
+  replicas: 2
   selector:
     matchLabels:
-      app: simple-app   # 3. Manager watches pods tagged with this sticker
-
-template:             # This is the blueprint for creating new Pods
+      app: simple-app
+  template:
     metadata:
       labels:
-        app: simple-app # Slaps the sticker on the pod so the manager can track it
+        app: simple-app
     spec:
       containers:
       - name: simple-app
         image: simple-app:latest
-        imagePullPolicy: Never # 4. Don't look on the internet; use our local image
+        imagePullPolicy: Never
         ports:
-        - containerPort: 5000  # 5. The app inside the container listens on port 5000
+        - containerPort: 5000
         env:
         - name: SECRET_KEY
-          value: "pavvi"       # 6. Injects our environment variable
-
+          value: "pavvi"
+---
 apiVersion: v1
-kind: Service           # 1. Tells K8s: "Create a stable traffic router"
+kind: Service
 metadata:
   name: simple-app-service
 spec:
-  type: NodePort        # 2. Open a port on the actual machine for the outside world
+  type: NodePort
   selector:
-    app: simple-app     # 3. Send traffic to any pod carrying this sticker
+    app: simple-app
   ports:
-    - port: 80          # 4. Internal cluster port
-      targetPort: 5000  # 5. Route the traffic down to the container's port 5000
-      nodePort: 30080   # 6. The actual port you type into your web browser!
+    - port: 80
+      targetPort: 5000
+      nodePort: 30080
