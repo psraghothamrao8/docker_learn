@@ -54,15 +54,14 @@ pipeline {
             }
         }
         
-        /* 
-        // Commented out Stage: Deploy Locally (Left here for reference/alternative setups)
+        // Stage 3.5: Deploy Locally (Uncommented to ensure local Docker container gets updated)
         stage('Deploy Locally') {
                 environment {
                     // This securely extracts your secret from Jenkins credentials
                     REAL_SECRET = credentials('app-secret-key')
                 }
                 steps {
-                    echo 'Deploying app to Ubuntu with injected secrets...'
+                    echo 'Deploying app to local Docker container with injected secrets...'
                     sh 'docker stop my-running-app || true'
                     sh 'docker rm my-running-app || true'
                     
@@ -70,7 +69,6 @@ pipeline {
                     sh "docker run -d --name my-running-app -p 8081:5000 -e SECRET_KEY='${REAL_SECRET}' simple-app:latest"
                 }
         } 
-        */
 
         // Stage 4: Deploy the application to our local Kubernetes (Minikube) cluster.
         stage('Deploy to Kubernetes') {
@@ -109,7 +107,13 @@ pipeline {
                     # We pipe the contents of 'deployment.yaml' from our workspace directly into Minikube's kubectl.
                     cat deployment.yaml | docker exec -i minikube /bin/bash -c "export KUBECONFIG=/root/.kube/config:/etc/kubernetes/admin.conf && ${KUBECTL_BIN} apply -f -"
                     
-                    # 4. Monitor rollout status to verify the pods deploy successfully.
+                    # 4. Force a restart of the Kubernetes deployment.
+                    # Since the image is tagged as 'latest' and imagePullPolicy is 'Never', Kubernetes
+                    # won't automatically recreate the pods if the deployment.yaml manifest itself is unchanged.
+                    # This rollout restart command forces Kubernetes to terminate the old pods and launch new ones with the new image.
+                    docker exec -i minikube /bin/bash -c "export KUBECONFIG=/root/.kube/config:/etc/kubernetes/admin.conf && ${KUBECTL_BIN} rollout restart deployment/simple-app-deployment"
+                    
+                    # 5. Monitor rollout status to verify the pods deploy successfully.
                     # This command will block and wait until the replicas are fully started and healthy.
                     docker exec -i minikube /bin/bash -c "export KUBECONFIG=/root/.kube/config:/etc/kubernetes/admin.conf && ${KUBECTL_BIN} rollout status deployment/simple-app-deployment"
                 '''
