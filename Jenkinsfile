@@ -52,14 +52,20 @@ pipeline {
                 echo 'Shipping image to Minikube container...'
                 sh 'docker save simple-app:latest | docker exec -i minikube docker load'
 
-                echo 'Applying Kubernetes manifests using cluster binaries...'
-                // This dynamically finds the hidden version folder inside the container and runs kubectl
-                sh 'cat deployment.yaml | docker exec -i minikube /bin/bash -c "PATH=\$(ls -d /var/lib/minikube/binaries/*/ | head -n 1):\$PATH kubectl apply -f -"'
-                
-                echo 'Checking deployment status...'
-                sh 'docker exec -i minikube /bin/bash -c "PATH=\$(ls -d /var/lib/minikube/binaries/*/ | head -n 1):\$PATH kubectl rollout status deployment/simple-app-deployment"'
+                echo 'Locating and applying Kubernetes manifests...'
+                sh '''
+                    # 1. Find the exact path to kubectl inside the minikube container and strip hidden windows line endings (\\r)
+                    KUBECTL_PATH=$(docker exec minikube ls -d /var/lib/minikube/binaries/*/ | head -n 1 | tr -d '\\r')
+                    
+                    # 2. Use that absolute path to apply your yaml file safely
+                    cat deployment.yaml | docker exec -i minikube ${KUBECTL_PATH}kubectl apply -f -
+                    
+                    # 3. Check the rollout status using the same path
+                    docker exec -i minikube ${KUBECTL_PATH}kubectl rollout status deployment/simple-app-deployment
+                '''
             }
         }
+
     }
     post {
         always {
