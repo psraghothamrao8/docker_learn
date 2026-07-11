@@ -17,9 +17,19 @@ pipeline {
         }
     }
         stage('Build Package') {
+                    steps {
+                        sh 'docker build -t simple-app:latest .'
+                    }
+                }
+        stage('Deploy Locally') {
             steps {
-                echo 'Tests passed! Building the final production image...'
-                sh 'docker build -t simple-app .'
+                echo 'Deploying app to Ubuntu...'
+                // 1. Stop and remove the old version if it's already running
+                sh 'docker stop my-running-app || true'
+                sh 'docker rm my-running-app || true'
+                
+                // 2. Start the fresh image we just built
+                sh 'docker run -d --name my-running-app -p 8081:5000 simple-app:latest'
             }
         }
     }
