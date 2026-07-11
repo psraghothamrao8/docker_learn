@@ -1,6 +1,11 @@
 pipeline {
     agent any 
-    
+
+    triggers {
+        // Check GitHub for new commits every single minute
+        pollSCM('* * * * *')
+    }
+
     stages {
         stage('Fetch Code') {
             steps {
