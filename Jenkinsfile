@@ -68,10 +68,8 @@ pipeline {
         } 
         */
 
-        // Stage 4: Deploy the containerized application onto the Kubernetes cluster
         stage('Deploy to Kubernetes') {
             environment {
-                // Securely fetch your production secret from the Jenkins credentials manager
                 LIVE_SECRET = credentials('app-secret-key')
             }
             steps {
@@ -80,20 +78,21 @@ pipeline {
 
                 echo 'Locating cluster binaries and generating secure keys...'
                 sh '''
+                    # 1. Find the exact path to the kubectl binary inside the minikube container
                     KUBECTL_BIN=$(docker exec minikube find /var/lib/minikube/binaries -name kubectl -type f | head -n 1 | tr -d '\\r')
+                    echo "Found cluster kubectl binary at: ${KUBECTL_BIN}"
                     
-                    # 1. Securely generate/update the secret inside Kubernetes using the Jenkins vault value
-                    docker exec -i minikube /bin/bash -c "KUBECONFIG=/root/.kube/config:/etc/kubernetes/admin.conf ${KUBECTL_BIN} create secret generic app-secret --from-literal=secret-key=${LIVE_SECRET} --dry-run=client -o yaml | ${KUBECTL_BIN} apply -f -"
+                    # 2. Create or update the secret (Exporting KUBECONFIG fixes the pipe environment gap!)
+                    docker exec -i minikube /bin/bash -c "export KUBECONFIG=/root/.kube/config:/etc/kubernetes/admin.conf && ${KUBECTL_BIN} create secret generic app-secret --from-literal=secret-key=${LIVE_SECRET} --dry-run=client -o yaml | ${KUBECTL_BIN} apply -f -"
                     
-                    # 2. Apply your updated deployment manifest
-                    cat deployment.yaml | docker exec -i minikube /bin/bash -c "KUBECONFIG=/root/.kube/config:/etc/kubernetes/admin.conf ${KUBECTL_BIN} apply -f -"
+                    # 3. Apply your updated deployment manifest
+                    cat deployment.yaml | docker exec -i minikube /bin/bash -c "export KUBECONFIG=/root/.kube/config:/etc/kubernetes/admin.conf && ${KUBECTL_BIN} apply -f -"
                     
-                    # 3. Track rollout status
-                    docker exec -i minikube /bin/bash -c "KUBECONFIG=/root/.kube/config:/etc/kubernetes/admin.conf ${KUBECTL_BIN} rollout status deployment/simple-app-deployment"
+                    # 4. Track rollout status
+                    docker exec -i minikube /bin/bash -c "export KUBECONFIG=/root/.kube/config:/etc/kubernetes/admin.conf && ${KUBECTL_BIN} rollout status deployment/simple-app-deployment"
                 '''
             }
         }
-
     }
     
     // Actions that run post-pipeline execution
