@@ -207,7 +207,7 @@ def home():
         <div style="display: none;">Hello! {secret} is the secret of my energy!</div>
 
         <div class="footer">
-            Crafted with DevOps & Love
+            Crafted with DevOps & Loveeeeee
         </div>
     </div>
 
@@ -222,4 +222,4 @@ if __name__ == '__main__':
     # Start the Flask development web server.
     # host='0.0.0.0' configures Flask to listen on all available network interfaces.
     # port=5000 configures Flask to listen on port number 5000.
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000)

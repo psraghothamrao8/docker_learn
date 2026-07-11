@@ -21,17 +21,30 @@ docker run -d \
  
 docker pipeline install plugins in jenkins
  
-# Wake up Kubernetes
+# ==========================================
+# WAKING UP WORKSPACE AFTER RESTART
+# ==========================================
+
+# Step 0: Ensure Docker Desktop is launched and running on your computer.
+
+# Step 1: Wake up Kubernetes (Minikube cluster container)
 minikube start --driver=docker
 
-# Wake up Jenkins
-docker start my-modern-jenkins
+# Step 2: Wake up Jenkins (container name is 'my-jenkins')
+docker start my-jenkins
 
-# 1. Verify Jenkins and Minikube are running side-by-side in Docker
+# Step 3: Wake up Local Testing Container (optional, container name is 'my-running-app')
+docker start my-running-app
+
+# Step 4: Verify everything is running side-by-side in Docker
 docker ps
 
-# 2. Verify your Kubernetes pods are running safely
+# Step 5: Verify your Kubernetes pods are running safely
 kubectl get pods
 
-# 3. Get the active web link to view your application in your browser
+# Step 6: Get access links to view your apps in the browser:
+# - Jenkins UI: Open http://localhost:8080
+# - Local Docker App: Open http://localhost:8081
+# - Kubernetes App: Run command below to get the URL
 minikube service simple-app-service --url
+
