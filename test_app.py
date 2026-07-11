@@ -8,4 +8,4 @@ def test_home_route():
     client = app.test_client()
     response = client.get('/')
     assert response.status_code == 200
-    assert b"Hello! Secret is: pavvi" in response.data
+    assert b"Hello! pavvi is the secret of my energy" in response.data
