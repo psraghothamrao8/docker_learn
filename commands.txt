@@ -1,13 +1,33 @@
+# =========================================================================
+# JENKINS SETUP COMMANDS (CREATING A DOCKER-IN-DOCKER ENABLD JENKINS)
+# =========================================================================
+
+# 1. Create a new directory for Jenkins setup and navigate into it
 mkdir modern-jenkins && cd modern-jenkins
+
+# 2. Create a Dockerfile for custom Jenkins.
+# We run as 'root' and install 'docker.io' so that Jenkins can run docker commands inside itself.
+# 'rm -rf /var/lib/apt/lists/*' cleans up package manager cache files to keep the image small.
 cat <<EOF > Dockerfile
 FROM jenkins/jenkins:lts
 USER root
 RUN apt-get update && apt-get install -y docker.io && rm -rf /var/lib/apt/lists/*
 EOF
 
-
+# 3. Build the custom Jenkins image and tag it as 'my-modern-jenkins'
+# The dot '.' at the end tells Docker to look for the Dockerfile in the current directory.
 docker build -t my-modern-jenkins .
 
+# 4. Start the Jenkins container with all necessary permissions and configurations
+# Flags explained:
+#   -d : Run the container in "detached" mode (in the background so it doesn't block the terminal).
+#   -p 8080:8080 : Map port 8080 of our computer to port 8080 inside the container (Jenkins Web UI).
+#   -p 50000:50000 : Map port 50000 (used for connecting Jenkins build agents).
+#   --name my-jenkins : Give the running container a friendly name so we can reference it easily.
+#   --user root : Run container tasks with administrative (root) permissions.
+#   -v /var/jenkins_home:/var/jenkins_home : Save Jenkins data on our computer so configurations aren't lost when the container stops.
+#   -v /var/run/docker.sock:/var/run/docker.sock : Mount the host computer's Docker engine socket inside the container.
+#                                                  This allows Jenkins to trigger docker commands on our host machine!
 docker run -d \
   -p 8080:8080 \
   -p 50000:50000 \
@@ -17,34 +37,40 @@ docker run -d \
   -v /var/run/docker.sock:/var/run/docker.sock \
   my-modern-jenkins
 
-  
- 
-docker pipeline install plugins in jenkins
- 
-# ==========================================
-# WAKING UP WORKSPACE AFTER RESTART
-# ==========================================
 
-# Step 0: Ensure Docker Desktop is launched and running on your computer.
+# 5. Pipeline Plugins Setup:
+# Once Jenkins is open in the browser, go to Manage Jenkins -> Plugins and install:
+# - "Docker Pipeline"
+# - "Docker"
+# - "Pipeline" (or standard Recommended Plugins)
 
-# Step 1: Wake up Kubernetes (Minikube cluster container)
+
+# =========================================================================
+# WAKING UP WORKSPACE AFTER RESTART (DAILY WORKFLOW)
+# =========================================================================
+
+# Step 0: Make sure Docker Desktop is launched and running on your computer.
+
+# Step 1: Start Minikube (our local single-node Kubernetes cluster).
+# The '--driver=docker' flag tells Minikube to run the entire Kubernetes cluster inside a Docker container.
 minikube start --driver=docker
 
-# Step 2: Wake up Jenkins (container name is 'my-jenkins')
+# Step 2: Start our Jenkins container (created in Step 4 above).
 docker start my-jenkins
 
-# Step 3: Wake up Local Testing Container (optional, container name is 'my-running-app')
+# Step 3: Start the local standalone version of our application (optional, maps to port 8081).
 docker start my-running-app
 
-# Step 4: Verify everything is running side-by-side in Docker
+# Step 4: Verify which containers are running on your machine.
+# This displays a table of active container IDs, names, status, and ports.
 docker ps
 
-# Step 5: Verify your Kubernetes pods are running safely
+# Step 5: Check the status of your Kubernetes pods.
+# Pods are the smallest deployable units in Kubernetes that host our application containers.
 kubectl get pods
 
 # Step 6: Get access links to view your apps in the browser:
-# - Jenkins UI: Open http://localhost:8080
-# - Local Docker App: Open http://localhost:8081
-# - Kubernetes App: Run command below to get the URL
+# - Jenkins UI: Open http://localhost:8080 in your browser.
+# - Local Standalone Docker App: Open http://localhost:8081 in your browser.
+# - Kubernetes App: Run the command below. Minikube will assign a dynamic IP/port and open the page.
 minikube service simple-app-service --url
-

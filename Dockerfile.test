@@ -1,11 +1,16 @@
-# Use an official Python runtime as a parent/base image (slim version for a smaller container footprint)
+# 1. Base Image: Use the same official Python runtime to match our production environment.
 FROM python:3.9-slim
 
-# Set the working directory inside the container to /app. All subsequent commands will run here.
+# 2. Working Directory: Create and enter the /app folder inside the test container.
 WORKDIR /app
 
-# Run pip install to install pytest (testing framework) and flask (web framework)
+# 3. Test Dependencies: Install both 'pytest' (for running our tests) and 'flask' (required by our app).
+# In a test container, we need both our main libraries and our testing tools.
 RUN pip install pytest flask
 
-# Copy all files and folders from our local project folder into the /app folder of the container
-COPY . .
+# 4. Copy Code: Copy our project files (including app.py and test_app.py) into the container.
+COPY . .
+
+# NOTE: There is no CMD (startup command) in this file!
+# This is intentional. When Jenkins runs this test container, it overrides the default startup command
+# to run 'pytest' inside the container instead. This lets us use the container as a clean test runner.

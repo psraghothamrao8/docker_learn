@@ -1,2 +1,5 @@
+# Flask is the lightweight web framework used to build our server, routing, and render templates.
 flask
+
+# Pytest is the framework used to write and run automated unit tests to verify our code works.
 pytest
