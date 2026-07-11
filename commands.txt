@@ -1,5 +1,3 @@
-
-
 mkdir modern-jenkins && cd modern-jenkins
 cat <<EOF > Dockerfile
 FROM jenkins/jenkins:lts
@@ -20,7 +18,9 @@ docker run -d \
   my-modern-jenkins
   
  
- docker pipeline install plugins
+docker pipeline install plugins
  
  
- 
+kubectl get pods
+
+minikube service simple-app-service --url
