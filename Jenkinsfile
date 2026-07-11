@@ -54,11 +54,15 @@ pipeline {
 
                 echo 'Locating and applying Kubernetes manifests inside the cluster...'
                 sh '''
-                    # The container finds its own internal kubectl path and executes it seamlessly
-                    cat deployment.yaml | docker exec -i minikube /bin/bash -c '$(find /var/lib/minikube/binaries -name kubectl -type f | head -n 1) apply -f -'
+                    # 1. Find the exact path to the kubectl binary inside the minikube container
+                    KUBECTL_BIN=$(docker exec minikube find /var/lib/minikube/binaries -name kubectl -type f | head -n 1 | tr -d '\\r')
+                    echo "Found cluster kubectl binary at: ${KUBECTL_BIN}"
+                    
+                    # 2. Apply the manifest by explicitly pointing to the internal cluster credentials
+                    cat deployment.yaml | docker exec -i minikube /bin/bash -c "KUBECONFIG=/root/.kube/config:/etc/kubernetes/admin.conf ${KUBECTL_BIN} apply -f -"
                     
                     echo 'Checking deployment status...'
-                    docker exec -i minikube /bin/bash -c '$(find /var/lib/minikube/binaries -name kubectl -type f | head -n 1) rollout status deployment/simple-app-deployment'
+                    docker exec -i minikube /bin/bash -c "KUBECONFIG=/root/.kube/config:/etc/kubernetes/admin.conf ${KUBECTL_BIN} rollout status deployment/simple-app-deployment"
                 '''
             }
         }
