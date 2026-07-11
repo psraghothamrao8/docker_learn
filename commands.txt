@@ -16,11 +16,22 @@ docker run -d \
   -v /var/jenkins_home:/var/jenkins_home \
   -v /var/run/docker.sock:/var/run/docker.sock \
   my-modern-jenkins
+
   
  
-docker pipeline install plugins
+docker pipeline install plugins in jenkins
  
- 
+# Wake up Kubernetes
+minikube start --driver=docker
+
+# Wake up Jenkins
+docker start my-modern-jenkins
+
+# 1. Verify Jenkins and Minikube are running side-by-side in Docker
+docker ps
+
+# 2. Verify your Kubernetes pods are running safely
 kubectl get pods
 
+# 3. Get the active web link to view your application in your browser
 minikube service simple-app-service --url
