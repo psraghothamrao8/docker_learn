@@ -1,5 +1,11 @@
+# Use an official Python runtime as a parent/base image (slim version for a smaller container footprint)
 FROM python:3.9-slim
+
+# Set the working directory inside the container to /app. All subsequent commands will run here.
 WORKDIR /app
-# Install both testing and web dependencies
+
+# Run pip install to install pytest (testing framework) and flask (web framework)
 RUN pip install pytest flask
-COPY . .
+
+# Copy all files and folders from our local project folder into the /app folder of the container
+COPY . .
