@@ -6,6 +6,7 @@ app = Flask(__name__)
 def home():
     # os.environ.get reads the secret injected by Docker
     secret = os.environ.get('SECRET_KEY', 'no-key-found')
+    
     return f"Hello! {secret} is the secret of my energy!"
 
 if __name__ == '__main__':
